@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { MomentsPanel } from "@/components/MomentsPanel";
 import { getMaterial, type MaterialDetail, materialFileUrl } from "@/lib/api";
 import { formatTimestamp } from "@/lib/format";
 
@@ -61,6 +62,10 @@ export default function MaterialPage() {
         <p role="alert" className="text-sm text-red-700">
           Transcription failed: {material.error}
         </p>
+      )}
+
+      {material.status === "ready" && (
+        <MomentsPanel materialId={material.id} positionMs={positionMs} onSeek={seekTo} />
       )}
 
       <section className="flex flex-col gap-2">

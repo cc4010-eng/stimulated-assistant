@@ -1,7 +1,7 @@
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -65,6 +65,9 @@ class Material(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
     study: Mapped[Study] = relationship(back_populates="materials")
+    moments: Mapped[list["Moment"]] = relationship(
+        back_populates="material", cascade="all, delete-orphan", order_by="Moment.timestamp_ms"
+    )
     segments: Mapped[list["TranscriptSegment"]] = relationship(
         back_populates="material",
         cascade="all, delete-orphan",
@@ -86,3 +89,47 @@ class TranscriptSegment(Base):
     text: Mapped[str] = mapped_column(Text)
 
     material: Mapped[Material] = relationship(back_populates="segments")
+
+
+class Moment(Base):
+    """A point in the material to stop at and ask about during the interview."""
+
+    __tablename__ = "moments"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    material_id: Mapped[str] = mapped_column(
+        ForeignKey("materials.id", ondelete="CASCADE"), index=True
+    )
+    timestamp_ms: Mapped[int] = mapped_column(Integer)
+    reason: Mapped[str] = mapped_column(Text, default="")
+    question: Mapped[str] = mapped_column(Text)
+    # Who proposed it: "ai" or "researcher".
+    source: Mapped[str] = mapped_column(String(20))
+    # candidate -> confirmed | removed. Removed moments are kept for evaluation.
+    status: Mapped[str] = mapped_column(String(20), default="candidate")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+    material: Mapped[Material] = relationship(back_populates="moments")
+    events: Mapped[list["MomentEvent"]] = relationship(
+        back_populates="moment", cascade="all, delete-orphan", order_by="MomentEvent.created_at"
+    )
+
+
+class MomentEvent(Base):
+    """Append-only record of what happened to a moment and who did it.
+
+    Researcher decisions on AI suggestions are the ground truth for judging
+    the suggester later, so nothing here is updated or deleted.
+    """
+
+    __tablename__ = "moment_events"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    moment_id: Mapped[str] = mapped_column(ForeignKey("moments.id", ondelete="CASCADE"), index=True)
+    # suggested | added | accepted | edited | removed
+    action: Mapped[str] = mapped_column(String(20))
+    actor: Mapped[str] = mapped_column(String(20))
+    detail: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+    moment: Mapped[Moment] = relationship(back_populates="events")
