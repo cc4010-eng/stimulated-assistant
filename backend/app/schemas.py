@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -55,3 +56,37 @@ class MaterialOut(BaseModel):
 
 class MaterialDetail(MaterialOut):
     segments: list[SegmentOut] = []
+
+
+class MomentCreate(BaseModel):
+    timestamp_ms: int = Field(ge=0)
+    question: str = Field(min_length=1)
+    reason: str = ""
+
+
+class MomentUpdate(BaseModel):
+    status: Literal["confirmed", "removed"] | None = None
+    question: str | None = Field(default=None, min_length=1)
+
+
+class MomentOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    material_id: str
+    timestamp_ms: int
+    reason: str
+    question: str
+    source: str
+    status: str
+    created_at: datetime
+
+
+class MomentEventOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    moment_id: str
+    action: str
+    actor: str
+    detail: dict
+    created_at: datetime
