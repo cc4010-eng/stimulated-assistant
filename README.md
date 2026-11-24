@@ -10,15 +10,22 @@ the material, running the interview, and coding the answers.
 
 ## Status
 
-Early scaffold. What works today:
+Early build. What works today:
 
-- Create and list studies, add participants (API and a minimal web page)
+- Create and list studies, add participants
+- Upload an audio or video recording to a study
+- Transcript view with timestamps and speakers; click a line to jump to it
 - Postgres schema managed with Alembic
 - Structured JSON request logs with a request id
 - CI: lint and tests for the backend, lint and build for the frontend
 
-Not built yet: material upload and transcription, moment selection, the
-interview loop, voice, coding and review.
+Transcription currently uses a stub that returns the same short exchange for
+every file. It exists so the upload-to-transcript path can run without a
+speech API key; a real provider plugs in behind the same interface
+(`backend/app/transcription.py`).
+
+Not built yet: real transcription, moment selection, the interview loop,
+voice, coding and review.
 
 ## Run it locally
 
@@ -40,7 +47,8 @@ pip install -e ".[dev]"
 pytest -q
 ```
 
-Tests run against in-memory SQLite, so they do not need Docker.
+Tests run against in-memory SQLite and a temporary upload folder, so they do
+not need Docker.
 
 To change the schema, edit `backend/app/models.py`, then:
 
