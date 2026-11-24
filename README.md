@@ -15,6 +15,8 @@ Early build. What works today:
 - Create and list studies, add participants
 - Upload an audio or video recording to a study
 - Transcript view with timestamps and speakers; click a line to jump to it
+- Moment selection: the system suggests moments to discuss, the researcher
+  accepts, edits or removes them and adds their own. Every decision is logged.
 - Postgres schema managed with Alembic
 - Structured JSON request logs with a request id
 - CI: lint and tests for the backend, lint and build for the frontend
@@ -24,8 +26,12 @@ every file. It exists so the upload-to-transcript path can run without a
 speech API key; a real provider plugs in behind the same interface
 (`backend/app/transcription.py`).
 
-Not built yet: real transcription, moment selection, the interview loop,
-voice, coding and review.
+Moment suggestions come from a rule-based baseline that flags long pauses
+between speakers (`backend/app/suggestion.py`). A model-based suggester will
+sit behind the same interface and be measured against it.
+
+Not built yet: real transcription, model-based suggestions, the interview
+loop, voice, coding and review.
 
 ## Run it locally
 

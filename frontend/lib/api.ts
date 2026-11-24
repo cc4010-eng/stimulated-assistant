@@ -41,11 +41,22 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-function postJson<T>(path: string, body: unknown): Promise<T> {
+export type Moment = {
+  id: string;
+  material_id: string;
+  timestamp_ms: number;
+  reason: string;
+  question: string;
+  source: "ai" | "researcher";
+  status: "candidate" | "confirmed";
+  created_at: string;
+};
+
+function sendJson<T>(method: string, path: string, body?: unknown): Promise<T> {
   return request<T>(path, {
-    method: "POST",
+    method,
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    body: body === undefined ? undefined : JSON.stringify(body),
   });
 }
 
@@ -54,7 +65,7 @@ export const listStudies = () => request<Study[]>("/studies");
 export const getStudy = (id: string) => request<Study>(`/studies/${id}`);
 
 export const createStudy = (title: string, researchQuestions: string) =>
-  postJson<Study>("/studies", { title, research_questions: researchQuestions });
+  sendJson<Study>("POST", "/studies", { title, research_questions: researchQuestions });
 
 export const listMaterials = (studyId: string) =>
   request<Material[]>(`/studies/${studyId}/materials`);
@@ -68,3 +79,20 @@ export function uploadMaterial(studyId: string, file: File) {
 }
 
 export const materialFileUrl = (id: string) => `${BASE_URL}/materials/${id}/file`;
+
+export const listMoments = (materialId: string) =>
+  request<Moment[]>(`/materials/${materialId}/moments`);
+
+export const suggestMoments = (materialId: string) =>
+  sendJson<Moment[]>("POST", `/materials/${materialId}/moments/suggest`);
+
+export const addMoment = (materialId: string, timestampMs: number, question: string) =>
+  sendJson<Moment>("POST", `/materials/${materialId}/moments`, {
+    timestamp_ms: timestampMs,
+    question,
+  });
+
+export const updateMoment = (
+  id: string,
+  changes: { status?: "confirmed" | "removed"; question?: string },
+) => sendJson<Moment>("PATCH", `/moments/${id}`, changes);

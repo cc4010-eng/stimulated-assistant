@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     max_upload_mb: int = 500
     # "stub" returns a fixed transcript so the pipeline runs without an API key.
     transcriber: str = "stub"
+    # "pause" is a rule-based baseline that needs no model.
+    suggester: str = "pause"
 
 
 settings = Settings()
