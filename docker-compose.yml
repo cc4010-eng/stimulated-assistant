@@ -18,11 +18,15 @@ services:
     build: ./backend
     environment:
       DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/stimulated
+      STORAGE_DIR: /data/storage
     ports:
       - "8000:8000"
+    volumes:
+      - storage-data:/data/storage
     depends_on:
       db:
         condition: service_healthy
 
 volumes:
   db-data:
+  storage-data:

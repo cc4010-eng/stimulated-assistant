@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { type FormEvent, useEffect, useState } from "react";
 import { createStudy, listStudies, type Study } from "@/lib/api";
 
@@ -64,7 +65,11 @@ export default function StudiesPage() {
       <ul className="flex flex-col gap-3">
         {studies.map((study) => (
           <li key={study.id} className="rounded-lg border bg-white p-5">
-            <h2 className="font-semibold">{study.title}</h2>
+            <h2 className="font-semibold">
+              <Link href={`/studies/${study.id}`} className="hover:underline">
+                {study.title}
+              </Link>
+            </h2>
             {study.research_questions && (
               <p className="mt-1 text-sm text-stone-600">{study.research_questions}</p>
             )}
