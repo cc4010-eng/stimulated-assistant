@@ -15,3 +15,6 @@ next-env.d.ts
 .env.local
 *.db
 .DS_Store
+
+# Uploaded recordings
+storage/

@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.logging import RequestLogMiddleware, configure_logging
-from app.routers import studies
+from app.routers import materials, studies
 
 configure_logging(settings.log_level)
 
@@ -16,6 +16,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(studies.router)
+app.include_router(materials.router)
 
 
 @app.get("/health")
