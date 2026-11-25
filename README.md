@@ -17,6 +17,11 @@ Early build. What works today:
 - Transcript view with timestamps and speakers; click a line to jump to it
 - Moment selection: the system suggests moments to discuss, the researcher
   accepts, edits or removes them and adds their own. Every decision is logged.
+- Text interview over the confirmed moments, with three control modes: the AI
+  leads, the AI asks for approval first, or the researcher leads and the AI
+  only suggests. The mode can change mid-interview.
+- Interview rules enforced in code: follow-up limit, time budget split across
+  the remaining moments, no leading wording, no repeated question
 - Postgres schema managed with Alembic
 - Structured JSON request logs with a request id
 - CI: lint and tests for the backend, lint and build for the frontend
@@ -30,8 +35,13 @@ Moment suggestions come from a rule-based baseline that flags long pauses
 between speakers (`backend/app/suggestion.py`). A model-based suggester will
 sit behind the same interface and be measured against it.
 
-Not built yet: real transcription, model-based suggestions, the interview
-loop, voice, coding and review.
+Follow-up questions come from a keyword stand-in
+(`backend/app/interview/policy.py`). The rules in
+`backend/app/interview/harness.py` apply to whatever the policy proposes, so
+they will apply unchanged to a model.
+
+Not built yet: real transcription, model-based suggestions and follow-ups,
+voice, coding and review.
 
 ## Run it locally
 

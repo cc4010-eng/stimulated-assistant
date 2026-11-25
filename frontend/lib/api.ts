@@ -96,3 +96,55 @@ export const updateMoment = (
   id: string,
   changes: { status?: "confirmed" | "removed"; question?: string },
 ) => sendJson<Moment>("PATCH", `/moments/${id}`, changes);
+
+export type InterviewMode = "ai_leads" | "ai_asks_first" | "researcher_leads";
+
+export type Turn = {
+  position: number;
+  speaker: "ai" | "researcher" | "participant";
+  text: string;
+  moment_id: string | null;
+};
+
+export type Interview = {
+  id: string;
+  material_id: string;
+  mode: InterviewMode;
+  state: "awaiting_answer" | "awaiting_approval" | "researcher_turn" | "finished";
+  budget_seconds: number;
+  elapsed_seconds: number;
+  remaining_seconds: number;
+  moments_total: number;
+  moment_index: number;
+  current_moment: Moment | null;
+  moment_seconds: number;
+  moment_allowance_seconds: number;
+  followups_used: number;
+  max_followups: number;
+  pending_question: string | null;
+  suggested_question: string | null;
+  last_decision: Record<string, string | number | null> | null;
+  finished_reason: string | null;
+  turns: Turn[];
+};
+
+export type InterviewAction =
+  | "answer"
+  | "approve"
+  | "skip"
+  | "expire"
+  | "say"
+  | "next"
+  | "mode"
+  | "end";
+
+export const startInterview = (materialId: string, mode: InterviewMode, budgetMinutes: number) =>
+  sendJson<Interview>("POST", `/materials/${materialId}/interviews`, {
+    mode,
+    budget_minutes: budgetMinutes,
+  });
+
+export const getInterview = (id: string) => request<Interview>(`/interviews/${id}`);
+
+export const interviewAction = (id: string, action: InterviewAction, body?: object) =>
+  sendJson<Interview>("POST", `/interviews/${id}/${action}`, body);
