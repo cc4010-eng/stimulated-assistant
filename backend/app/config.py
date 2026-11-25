@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     transcriber: str = "stub"
     # "pause" is a rule-based baseline that needs no model.
     suggester: str = "pause"
+    followup_policy: str = "keyword"
 
 
 settings = Settings()
