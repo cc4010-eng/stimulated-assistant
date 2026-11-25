@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { MomentsPanel } from "@/components/MomentsPanel";
+import { StartInterview } from "@/components/StartInterview";
 import { getMaterial, type MaterialDetail, materialFileUrl } from "@/lib/api";
 import { formatTimestamp } from "@/lib/format";
 
@@ -65,7 +66,10 @@ export default function MaterialPage() {
       )}
 
       {material.status === "ready" && (
-        <MomentsPanel materialId={material.id} positionMs={positionMs} onSeek={seekTo} />
+        <>
+          <MomentsPanel materialId={material.id} positionMs={positionMs} onSeek={seekTo} />
+          <StartInterview materialId={material.id} />
+        </>
       )}
 
       <section className="flex flex-col gap-2">
