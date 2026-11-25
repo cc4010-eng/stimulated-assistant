@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.logging import RequestLogMiddleware, configure_logging
-from app.routers import materials, moments, studies
+from app.routers import interviews, materials, moments, studies
 
 configure_logging(settings.log_level)
 
@@ -18,6 +18,7 @@ app.add_middleware(
 app.include_router(studies.router)
 app.include_router(materials.router)
 app.include_router(moments.router)
+app.include_router(interviews.router)
 
 
 @app.get("/health")

@@ -90,3 +90,64 @@ class MomentEventOut(BaseModel):
     actor: str
     detail: dict
     created_at: datetime
+
+
+InterviewMode = Literal["ai_leads", "ai_asks_first", "researcher_leads"]
+
+
+class InterviewCreate(BaseModel):
+    mode: InterviewMode = "ai_leads"
+    budget_minutes: int = Field(default=45, ge=1, le=240)
+    max_followups: int = Field(default=2, ge=0, le=10)
+
+
+class TextIn(BaseModel):
+    text: str = Field(min_length=1)
+
+
+class ApproveIn(BaseModel):
+    text: str | None = None
+
+
+class ModeIn(BaseModel):
+    mode: InterviewMode
+
+
+class TurnOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    position: int
+    speaker: str
+    text: str
+    moment_id: str | None
+
+
+class InterviewEventOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    position: int
+    type: str
+    detail: dict
+    created_at: datetime
+
+
+class InterviewOut(BaseModel):
+    id: str
+    material_id: str
+    mode: str
+    state: str
+    budget_seconds: int
+    elapsed_seconds: int
+    remaining_seconds: int
+    moments_total: int
+    moment_index: int
+    current_moment: MomentOut | None
+    moment_seconds: int
+    moment_allowance_seconds: int
+    followups_used: int
+    max_followups: int
+    pending_question: str | None
+    suggested_question: str | None
+    last_decision: dict | None
+    finished_reason: str | None
+    turns: list[TurnOut]
