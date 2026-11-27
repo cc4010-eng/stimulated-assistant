@@ -1,7 +1,7 @@
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import JSON, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -33,6 +33,9 @@ class Study(Base):
     )
     materials: Mapped[list["Material"]] = relationship(
         back_populates="study", cascade="all, delete-orphan"
+    )
+    codes: Mapped[list["Code"]] = relationship(
+        back_populates="study", cascade="all, delete-orphan", order_by="Code.name"
     )
 
 
@@ -217,3 +220,61 @@ class InterviewEvent(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     interview: Mapped[Interview] = relationship(back_populates="events")
+
+
+class Code(Base):
+    """One entry in a study's codebook."""
+
+    __tablename__ = "codes"
+    __table_args__ = (UniqueConstraint("study_id", "name"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    study_id: Mapped[str] = mapped_column(ForeignKey("studies.id", ondelete="CASCADE"), index=True)
+    name: Mapped[str] = mapped_column(String(100))
+    description: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+    study: Mapped[Study] = relationship(back_populates="codes")
+
+
+class Coding(Base):
+    """A code applied to one participant answer."""
+
+    __tablename__ = "codings"
+    __table_args__ = (UniqueConstraint("turn_id", "code_id"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    interview_id: Mapped[str] = mapped_column(
+        ForeignKey("interviews.id", ondelete="CASCADE"), index=True
+    )
+    turn_id: Mapped[str] = mapped_column(ForeignKey("interview_turns.id", ondelete="CASCADE"))
+    code_id: Mapped[str] = mapped_column(ForeignKey("codes.id", ondelete="CASCADE"))
+    confidence: Mapped[float] = mapped_column(Float)
+    rationale: Mapped[str] = mapped_column(Text, default="")
+    # ai | researcher
+    source: Mapped[str] = mapped_column(String(20))
+    # accepted | needs_review | rejected
+    status: Mapped[str] = mapped_column(String(20))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+    turn: Mapped["InterviewTurn"] = relationship()
+    code: Mapped[Code] = relationship()
+    events: Mapped[list["CodingEvent"]] = relationship(
+        back_populates="coding", cascade="all, delete-orphan", order_by="CodingEvent.created_at"
+    )
+
+
+class CodingEvent(Base):
+    """Append-only record of how a coding was proposed and reviewed."""
+
+    __tablename__ = "coding_events"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    coding_id: Mapped[str] = mapped_column(ForeignKey("codings.id", ondelete="CASCADE"), index=True)
+    # proposed | added | accepted | rejected
+    action: Mapped[str] = mapped_column(String(20))
+    actor: Mapped[str] = mapped_column(String(20))
+    detail: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+    coding: Mapped[Coding] = relationship(back_populates="events")
