@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     # "pause" is a rule-based baseline that needs no model.
     suggester: str = "pause"
     followup_policy: str = "keyword"
+    coder: str = "keyword"
+    # AI codings at or above this confidence are accepted without review.
+    coding_auto_accept: float = 0.6
 
 
 settings = Settings()

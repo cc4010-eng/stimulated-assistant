@@ -151,3 +151,49 @@ class InterviewOut(BaseModel):
     last_decision: dict | None
     finished_reason: str | None
     turns: list[TurnOut]
+
+
+class CodeCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+    description: str = ""
+
+
+class CodeOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    name: str
+    description: str
+
+
+class CodingCreate(BaseModel):
+    turn_position: int = Field(ge=0)
+    code_id: str
+
+
+class CodingUpdate(BaseModel):
+    status: Literal["accepted", "rejected"]
+
+
+class CodingOut(BaseModel):
+    id: str
+    turn_position: int
+    code_id: str
+    code_name: str
+    confidence: float
+    rationale: str
+    source: str
+    status: str
+
+
+class CodedTurn(BaseModel):
+    position: int
+    text: str
+    moment_id: str | None
+    codings: list[CodingOut]
+
+
+class CodingSummary(BaseModel):
+    interview_id: str
+    needs_review: int
+    turns: list[CodedTurn]
