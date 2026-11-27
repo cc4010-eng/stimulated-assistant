@@ -22,6 +22,9 @@ Early build. What works today:
   only suggests. The mode can change mid-interview.
 - Interview rules enforced in code: follow-up limit, time budget split across
   the remaining moments, no leading wording, no repeated question
+- Coding: a codebook per study, suggested codes on each answer, review by the
+  researcher, and a CSV export of accepted codings. Low-confidence suggestions
+  wait for review; nothing the researcher decided is overwritten on a re-run.
 - Postgres schema managed with Alembic
 - Structured JSON request logs with a request id
 - CI: lint and tests for the backend, lint and build for the frontend
@@ -40,8 +43,12 @@ Follow-up questions come from a keyword stand-in
 `backend/app/interview/harness.py` apply to whatever the policy proposes, so
 they will apply unchanged to a model.
 
-Not built yet: real transcription, model-based suggestions and follow-ups,
-voice, coding and review.
+Code suggestions come from keyword overlap with each code's name and
+definition (`backend/app/coding.py`). It misses paraphrases and is fooled by
+negation; it is the floor a model-based coder will be compared against.
+
+Not built yet: real transcription, model-based suggestions, follow-ups and
+coding, and voice.
 
 ## Run it locally
 
