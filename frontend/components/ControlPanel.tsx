@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MODE_LABELS } from "@/components/StartInterview";
 import type { Interview, InterviewAction, InterviewMode } from "@/lib/api";
@@ -125,9 +126,15 @@ export function ControlPanel({ interview, elapsed, busy, onAction }: Props) {
       )}
 
       {finished ? (
-        <p className="rounded-lg border bg-white p-4 text-sm">
-          Interview finished: {String(interview.finished_reason).replaceAll("_", " ")}.
-        </p>
+        <div className="flex flex-col gap-3 rounded-lg border bg-white p-4 text-sm">
+          <p>Interview finished: {String(interview.finished_reason).replaceAll("_", " ")}.</p>
+          <Link
+            href={`/interviews/${interview.id}/coding`}
+            className="self-start rounded-md bg-blue-700 px-3 py-2 font-semibold text-white hover:bg-blue-800"
+          >
+            Code the answers
+          </Link>
+        </div>
       ) : (
         <div className="flex flex-wrap gap-2">
           <button

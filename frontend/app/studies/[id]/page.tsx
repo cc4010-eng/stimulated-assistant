@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { type FormEvent, useEffect, useRef, useState } from "react";
+import { Codebook } from "@/components/Codebook";
 import { getStudy, listMaterials, type Material, type Study, uploadMaterial } from "@/lib/api";
 import { formatSize } from "@/lib/format";
 
@@ -114,6 +115,8 @@ export default function StudyPage() {
           ))}
         </ul>
       </section>
+
+      <Codebook studyId={id} />
     </main>
   );
 }

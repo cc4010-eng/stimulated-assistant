@@ -148,3 +148,48 @@ export const getInterview = (id: string) => request<Interview>(`/interviews/${id
 
 export const interviewAction = (id: string, action: InterviewAction, body?: object) =>
   sendJson<Interview>("POST", `/interviews/${id}/${action}`, body);
+
+export type Code = { id: string; name: string; description: string };
+
+export type Coding = {
+  id: string;
+  turn_position: number;
+  code_id: string;
+  code_name: string;
+  confidence: number;
+  rationale: string;
+  source: "ai" | "researcher";
+  status: "accepted" | "needs_review" | "rejected";
+};
+
+export type CodedTurn = {
+  position: number;
+  text: string;
+  moment_id: string | null;
+  codings: Coding[];
+};
+
+export type CodingSummary = { interview_id: string; needs_review: number; turns: CodedTurn[] };
+
+export const listCodes = (studyId: string) => request<Code[]>(`/studies/${studyId}/codes`);
+
+export const addCode = (studyId: string, name: string, description: string) =>
+  sendJson<Code>("POST", `/studies/${studyId}/codes`, { name, description });
+
+export const getCodings = (interviewId: string) =>
+  request<CodingSummary>(`/interviews/${interviewId}/codings`);
+
+export const runCoding = (interviewId: string) =>
+  sendJson<CodingSummary>("POST", `/interviews/${interviewId}/code`);
+
+export const reviewCoding = (id: string, status: "accepted" | "rejected") =>
+  sendJson<Coding>("PATCH", `/codings/${id}`, { status });
+
+export const addCoding = (interviewId: string, turnPosition: number, codeId: string) =>
+  sendJson<Coding>("POST", `/interviews/${interviewId}/codings`, {
+    turn_position: turnPosition,
+    code_id: codeId,
+  });
+
+export const codingsCsvUrl = (interviewId: string) =>
+  `${BASE_URL}/interviews/${interviewId}/codings.csv`;
